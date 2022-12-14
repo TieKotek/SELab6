@@ -70,7 +70,5 @@ class TestSample(unittest.TestCase):
         except:
             self.assertTrue(False)
                 
-            
-  
 if __name__ == '__main__':
     unittest.main()
