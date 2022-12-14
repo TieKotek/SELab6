@@ -9,8 +9,7 @@ from sample_generator import sample_generator
 from execute import execute
 from config import sample_num
 
-
-if __name__ == '__main__':
+def main():
     start = time.time()
     if not os.path.exists('./output'):
         os.mkdir('output')
@@ -49,7 +48,7 @@ if __name__ == '__main__':
                                     os.path.join('input', directory, result_table[j]["name"])
                                 ])
             else:
-                print("Please first creat input directory!")
+                print("Please first create input directory!")
             equal.close()
             inequal.close()
     if os.name == 'nt':
@@ -60,3 +59,7 @@ if __name__ == '__main__':
             os.remove("./a.out")
     end = time.time()
     print("Done, it takes: ", round(end - start, 2), "s")
+
+
+if __name__ == '__main__':
+    main()

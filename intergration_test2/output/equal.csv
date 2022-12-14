@@ -1,0 +1,5 @@
+file1,file2
+input\case1\add1.cpp,input\case1\add2.cpp
+input\case1\add1.cpp,input\case1\add3.cpp
+input\case1\add2.cpp,input\case1\add3.cpp
+input\case2\string_con1.cpp,input\case2\string_con3.cpp

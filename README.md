@@ -80,7 +80,7 @@ main模块是机器比对模块的主要模块，其负责遍历input文件夹�
 
 分析Lab5的源代码：
 
-![pylint_lab5](E:\Study\大三上\软工\lab6\images\pylint_lab5.png)
+![pylint_lab5](images/pylint_lab5.png)
 
 结果分析：
 
@@ -113,17 +113,23 @@ main模块是机器比对模块的主要模块，其负责遍历input文件夹�
 
 ## 单元测试报告
 
-### 测试目的：
+### 测试目的
 
-验证Lab4中的sample_generator模块和execute模块行为的正确性，并且尽量得到高的测试覆盖率。
+验证Lab4中的sample_generator模块和execute模块行为的正确性，并且尽量得到高的测试覆盖率
+
+
 
 ### 测试对象
 
 Lab4中的sample_generator模块和execute模块
 
+
+
 ### 测试环境
 
 Windows 11 & Ubuntu 22.04
+
+
 
 ### 测试工具
 
@@ -131,9 +137,9 @@ Python的unittest模块
 
 
 
-### 测试过程：
+### 测试过程
 
-#### 对sample_generator模块的单元测试：
+#### 对sample_generator模块的单元测试
 
 **测试目的：**主要用于测试该模块能否正确读入对应的format文件并且正确地解析每个变量的类型、范围等信息。
 
@@ -197,7 +203,7 @@ if __name__ == '__main__':
 
 
 
-#### 对execute模块的单元测试：
+#### 对execute模块的单元测试
 
 **测试目的：**主要用于测试该模块能否正确地在不同的操作系统下调用编译器（g++）编译待执行程序并且对于各种不同的运行结果，将结果聚合成符合要求的json格式。
 
@@ -459,7 +465,162 @@ if __name__ == '__main__':
 
 以下为单元测试的测试结果：
 
+在Windows环境下：
 
+![unit_test2](images/unit_test2.png)
+
+在Linux（Ubuntu）环境下：
+
+![unit_test3](images/unit_test3.png)
+
+结合execute.py源代码分析，因为不同的系统环境和不同的运行结果均被覆盖，单元测试的语句覆盖率为100%。
 
 ## 集成测试报告
 
+下面，在我们已经对各模块进行了单元测试的前提下，我们将对Lab4中的等价判断工具进行集成测试
+
+
+
+### 测试目的
+
+验证Lab4中的sample_generator模块和execute模块的交互，在保证前者正确的基础上，对整个工具的功能正确性进行集成测试
+
+
+
+### 测试对象
+
+Lab4中的sample_generator模块和execute模块，以及包括main模块在内的工具整体
+
+
+
+### 测试环境
+
+Windows 11 & Ubuntu 22.04
+
+
+
+### 测试工具
+
+Python的unittest模块
+
+
+
+### 测试过程
+
+#### 集成测试1：sample_generator模块和execute模块的交互
+
+**测试目的：**在等价确认工具中，execute模块会调用以sample_generator模块输出的包含多个根据一定格式生的的随机样例的列表作为输入，编译指定程序并使其在这些样例上运行，最后得出该指定程序在这些样例上的运行结果。本测试主要上述两模块交互过程的正确性。
+
+该测试共有两个样例，分别测试了两个数字的整数加法和两个字符串的拼接，测试目录结构如下：
+
+```
+LAB6-CODE\INTERGRATION_TEST1
+├─case1
+│      add.cpp
+│      stdin_format.txt
+│      
+└─case2
+        stdin_format.txt
+        string_con.cpp
+```
+
+以下为该项测试的测试代码：
+
+```python
+import os
+import unittest
+import json
+from sample_generator import sample_generator
+from execute import execute
+from config import use_hash
+
+pwd = os.getcwd()
+
+class TestSample(unittest.TestCase):
+    def test_int_add(self):
+        sample_num = 10
+        self.assertFalse(use_hash, "Please make sure you have disabled use_hash")
+        path = os.path.join(pwd, "intergration_test1/case1")
+        os.chdir(path)
+        sample_list = sample_generator("stdin_format.txt", sample_num)
+        expect_output = []
+        for sample in sample_list:
+            data = sample.split(" ")
+            output = int(data[0]) + int(data[1])
+            output = str(output)
+            expect_output.append({
+                "status": "AC",
+                "output": output + "\n",
+                "error": ""
+            })
+        expect = {
+            "name": "add.cpp",
+            "output": json.dumps(expect_output)
+        }
+        result = execute("add.cpp", sample_list)
+        self.assertEqual(result, expect)
+            
+    def test_string_con(self):
+        sample_num = 10
+        self.assertFalse(use_hash, "Please make sure you have disabled use_hash")
+        path = os.path.join(pwd, "intergration_test1/case2")
+        os.chdir(path)
+        sample_list = sample_generator("stdin_format.txt", sample_num)
+        expect_output = []
+        for sample in sample_list:
+            data = sample.split(" ")
+            output = data[0] + data[1]
+            expect_output.append({
+                "status": "AC",
+                "output": output + "\n",
+                "error": ""
+            })
+        expect = {
+            "name": "string_con.cpp",
+            "output": json.dumps(expect_output)
+        }
+        result = execute("string_con.cpp", sample_list)
+        self.assertEqual(result, expect)
+  
+if __name__ == '__main__':
+    unittest.main()
+```
+
+上述代码的基本逻辑即为先使用sample_generator生成若干组随机样例，然后调用execute得到运行结果，并将运行结果与python中直接计算sample应有的运行结果进行比对，来确保两模块交互过程中没有出现问题。
+
+以下是在不同系统下的测试结果：
+
+
+
+
+
+### 集成测试2：总体测试
+
+**测试目的：**经过了上述测试，是时候进行全部模块的总体测试了！该测试目的是确保等价确认模块能够正确地读入输入、调用两个子模块进行结果计算，并且能够正确地将结果输出到对应csv文件中。
+
+如下为该测试的测试目录树：
+
+```
+LAB6-CODE\INTERGRATION_TEST2
+└─input
+    ├─case1
+    │      add1.cpp
+    │      add2.cpp
+    │      add3.cpp
+    │      add4.cpp
+    │      stdin_format.txt
+    │      
+    └─case2
+            stdin_format.txt
+            string_con1.cpp
+            string_con2.cpp
+            string_con3.cpp
+```
+
+在case1中，add1、add2、add3应当是等价的，而add4.cpp与前三者不等价。
+
+在case2中，string_con1、string_con2等价，而string_con3与前两者不等价。
+
+
+
+以下为该项测试的测试代码：
